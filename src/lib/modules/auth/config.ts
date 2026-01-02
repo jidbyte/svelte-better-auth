@@ -3,8 +3,7 @@ import { getRequestEvent } from '$app/server';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
-import { sendEmail } from '$lib/server/email/mailer';
-import { PasswordResetTemplate, VerifyEmailTemplate } from '$lib/server/email/templates';
+import { PasswordResetEmail, VerificationEmail } from '$lib/server/mailer/emails';
 import 'dotenv/config';
 
 export const auth = betterAuth({
@@ -21,21 +20,13 @@ export const auth = betterAuth({
 		enabled: true,
 		requireEmailVerification: true,
 		sendResetPassword: async ({ user, url, token }) => {
-			void sendEmail({
-				to: user.email,
-				subject: 'Reset your password',
-				html: PasswordResetTemplate(user.name, url)
-			});
+			PasswordResetEmail({ email: user.email, url });
 		}
 	},
 	emailVerification: {
 		sendOnSignIn: true,
-		sendVerificationEmail: async ({ user, url, token }) => {
-			void sendEmail({
-				to: user.email,
-				subject: 'Verify your email address',
-				html: VerifyEmailTemplate(user.name, url)
-			});
+		sendVerificationEmail: async ({ user, url }) => {
+			VerificationEmail({ email: user.email, url });
 		}
 	},
 	socialProviders: {

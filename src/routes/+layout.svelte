@@ -11,7 +11,7 @@
 <Toaster />
 
 <main>
-	<nav>
+	<nav class="mt-4 flex items-center justify-center gap-4">
 		<a href="/">Home</a>
 		<a href="/dashboard">Dashboard</a>
 	</nav>

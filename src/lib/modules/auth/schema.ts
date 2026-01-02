@@ -1,22 +1,22 @@
 import { z } from 'zod';
 
-export const SignupSchema = z.object({
+export const signupSchema = z.object({
 	firstname: z.string().min(1, 'First name is required'),
 	lastname: z.string().min(1, 'Last name is required'),
 	email: z.email('Please enter a valid email'),
-	password: z.string().min(8, 'Password must be at least 8 characters')
+	_password: z.string().min(8, 'Password must be at least 8 characters')
 });
 
-export const LoginSchema = z.object({
+export const loginSchema = z.object({
 	email: z.email('Please enter a valid email'),
-	password: z.string().min(1, 'Password is required')
+	_password: z.string().min(8, 'Password must be at least 8 characters')
 });
 
-export const ForgotPasswordSchema = z.object({
+export const emailSchema = z.object({
 	email: z.email('Please enter a valid email')
 });
 
-export const ResetPasswordSchema = z
+export const resetPasswordSchema = z
 	.object({
 		password: z.string().min(8, 'Password must be at least 8 characters'),
 		confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
@@ -27,17 +27,13 @@ export const ResetPasswordSchema = z
 		path: ['confirmPassword']
 	});
 
-export const UpdateUserSchema = z.object({
+export const updateProfileSchema = z.object({
 	image: z.string().optional(),
 	firstname: z.string().min(1, 'First name is required'),
 	lastname: z.string().min(1, 'Last name is required')
 });
 
-export const EmailSchema = z.object({
-	email: z.email('Please enter a valid email')
-});
-
-export const PasswordSchema = z
+export const updatePasswordSchema = z
 	.object({
 		currentPassword: z.string().min(1, 'Password is required'),
 		newPassword: z.string().min(8, 'Password must be at least 8 characters'),
@@ -48,5 +44,8 @@ export const PasswordSchema = z
 		path: ['confirmNewPassword']
 	});
 
-export type UpdateUserProp = z.infer<typeof UpdateUserSchema>;
-export type UpdatePasswordProp = z.infer<typeof PasswordSchema>;
+export type SignupProps = z.infer<typeof signupSchema>;
+export type LoginProps = z.infer<typeof loginSchema>;
+export type ResetPasswordProps = z.infer<typeof resetPasswordSchema>;
+export type UpdateProfileProps = z.infer<typeof updateProfileSchema>;
+export type UpdatePasswordProps = z.infer<typeof updatePasswordSchema>;

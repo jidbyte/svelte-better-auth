@@ -1,54 +1,92 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { emailSignup } from '../../../modules/auth/auth.remote';
+	import { Input } from '$lib/components/ui/input';
+	import { EmailSignup } from '$lib/modules/auth/auth.remote';
+	import { GoogleAuthClient, SignUpClient } from '$lib/modules/auth/client';
 
-	const { firstname, lastname, email, password } = emailSignup.fields;
+	const { firstname, lastname, email, _password } = EmailSignup.fields;
+	let message = $state<string | null>(null);
 </script>
 
-<div class="grid min-h-screen place-content-center">
-	{#if emailSignup.result?.success}
-		<p class="rounded-lg bg-green-100 p-2 text-sm font-medium text-green-800">
-			Account created successfully! Please check your email to verify your account.
-		</p>
-	{:else if emailSignup.result?.error}
-		<p class="rounded-lg bg-red-100 p-2 text-sm font-medium text-red-800">
-			{emailSignup.result.error.message}
-		</p>
-	{/if}
+<div class="central mt-4 min-h-[80vh]">
+	<h2 class="text-center text-xl font-medium text-sky-600">Create your account</h2>
 
-	<form {...emailSignup} class="space-y-2">
-		<div>
-			<label for="firstname">Firstname</label>
-			<input {...firstname.as('text')} />
-			{#each firstname.issues() as issue}
-				<p class="mt-1 text-sm text-red-600">{issue.message}</p>
-			{/each}
+	<div class="m-4 w-sm rounded-md border border-gray-500 p-6">
+		<div class="mb-4">
+			{#if message == 'success'}
+				<p class="rounded-sm bg-green-100 px-4 py-2 text-sm font-medium text-green-800">
+					Account created successfully! Please check your email to verify your account.
+				</p>
+			{:else if message !== null}
+				<p class="rounded-sm bg-red-100 px-4 py-2 text-sm font-medium text-red-800">
+					{message}
+				</p>
+			{/if}
 		</div>
 
-		<div>
-			<label for="lastname">Lastname</label>
-			<input {...lastname.as('text')} />
-			{#each lastname.issues() as issue}
-				<p class="mt-1 text-sm text-red-600">{issue.message}</p>
-			{/each}
-		</div>
+		<Button class="mb-4 w-full hover:bg-gray-600" onclick={GoogleAuthClient}
+			>Continue with Google
+		</Button>
 
-		<div>
-			<label for="email">Email</label>
-			<input {...email.as('text')} />
-			{#each email.issues() as issue}
-				<p class="mt-1 text-sm text-red-600">{issue.message}</p>
-			{/each}
-		</div>
+		<form
+			{...EmailSignup.enhance(async ({ submit, form, data }) => {
+				await submit();
+				if (EmailSignup.result?.ok) {
+					const res = await SignUpClient(data);
+					if (res?.error) {
+						message = res.error?.message!;
+					} else {
+						message = 'success';
+						form.reset();
+					}
+				}
+			})}
+			class="space-y-4"
+		>
+			<div>
+				<label for="firstname">First name</label>
+				<Input {...firstname.as('text')} />
+				{#each firstname.issues() as issue}
+					<small class="mt-1 text-xs font-medium text-red-600">{issue.message}</small>
+				{/each}
+			</div>
 
-		<div>
-			<label for="password">Password</label>
-			<input {...password.as('text')} />
-			{#each password.issues() as issue}
-				<p class="mt-1 text-sm text-red-600">{issue.message}</p>
-			{/each}
-		</div>
+			<div>
+				<label for="lastname">Last name</label>
+				<Input {...lastname.as('text')} />
+				{#each lastname.issues() as issue}
+					<small class="mt-1 text-xs font-medium text-red-600">{issue.message}</small>
+				{/each}
+			</div>
 
-		<Button type="submit">Submit</Button>
-	</form>
+			<div>
+				<label for="email">Email</label>
+				<Input {...email.as('text')} />
+				{#each email.issues() as issue}
+					<small class="mt-1 text-xs font-medium text-red-600">{issue.message}</small>
+				{/each}
+			</div>
+
+			<div>
+				<label for="password">Password</label>
+				<Input {..._password.as('password')} />
+				{#each _password.issues() as issue}
+					<small class="mt-1 text-xs font-medium text-red-600">{issue.message}</small>
+				{/each}
+			</div>
+
+			<Button type="submit" class="w-full bg-sky-600" disabled={!!EmailSignup.pending}>
+				{EmailSignup.pending ? 'Creating account...' : 'Sign Up'}
+			</Button>
+		</form>
+	</div>
+
+	<div class="flex flex-col items-center justify-center gap-1 px-6">
+		<a href="/auth/sign-in" class="font-medium text-gray-600 underline hover:text-sky-600"
+			>Sign in</a
+		>
+		<a href="/auth/password/forgot" class="font-medium text-gray-600 underline hover:text-sky-600"
+			>Forgot password</a
+		>
+	</div>
 </div>

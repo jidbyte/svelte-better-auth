@@ -1,14 +1,6 @@
 import { env } from '$env/dynamic/private';
 import nodemailer from 'nodemailer';
 
-export interface SMTPSettings {
-	host: string;
-	port: number;
-	fromEmail: string;
-	user?: string;
-	password?: string;
-}
-
 export interface SendEmailInput {
 	to: string;
 	subject: string;
@@ -21,7 +13,7 @@ const transporter = nodemailer.createTransport({
 	secure: false
 });
 
-export async function sendEmail(input: SendEmailInput): Promise<void> {
+export async function Mailer(input: SendEmailInput): Promise<void> {
 	await transporter.sendMail({
 		from: env.MAILER_SENDER,
 		to: input.to,
